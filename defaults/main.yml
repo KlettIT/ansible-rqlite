@@ -1,2 +1,8 @@
 ---
 # defaults file for ansible-role
+rqlite_version: "v8.24.11"
+rqlite_data_dir: "/var/lib/rqlite"
+rqlite_node_id: "{{ inventory_hostname }}"
+rqlite_raft_addr: "{{ ansible_default_ipv4.address }}:4002"
+rqlite_http_addr: "{{ ansible_default_ipv4.address }}:4001"
+rqlite_username: "rqlite"

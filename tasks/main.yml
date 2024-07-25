@@ -1,2 +1,35 @@
 ---
-# tasks file for ansible-role
+ - name: "Download rqlite"
+   ansible.builtin.get_url:
+     url: "https://github.com/rqlite/rqlite/releases/download/{{ rqlite_version }}/rqlite-{{ rqlite_version }}-linux-amd64.tar.gz"
+     dest: "/tmp/rqlite_{{ rqlite_version }}.tar.gz"
+   delegate_to: localhost
+   run_once: true
+ - name: "Unarchive rqlite"
+   ansible.builtin.unarchive:
+     src: "/tmp/rqlite_{{ rqlite_version }}.tar.gz"
+     dest: /usr/bin/
+     extra_opts: [--strip-components=1]
+     mode: +x
+     keep_newer: yes
+   notify: restart rqlited
+ - name: "Install rqlited service"
+   ansible.builtin.template:
+     src: rqlited.service.j2
+     dest: /usr/lib/systemd/system/rqlited.service
+   notify: restart rqlited
+ - name: "Create rqlite user"
+   ansible.builtin.user:
+     name: "{{ rqlite_username }}"
+     create_home: no
+ - name: "Ensure data dir exists"
+   ansible.builtin.file:
+     path: "{{ rqlite_data_dir }}"
+     owner: rqlite
+     group: rqlite
+     state: directory
+ - name: "Ensure rqlited service started and enabled"
+   ansible.builtin.service:
+     name: rqlited
+     state: started
+     enabled: yes

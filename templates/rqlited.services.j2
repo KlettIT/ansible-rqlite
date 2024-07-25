@@ -1,0 +1,19 @@
+[Unit]
+Description=rqlite server
+After=network.target
+Wants=network-online.target
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+
+User=rqlite
+Group=rqlite
+ProtectProc=invisible
+SyslogIdentifier=rqlite
+
+ExecStart=/usr/bin/rqlited -node-id {{ rqlite_node_id|lower }} -http-addr {{ rqlite_http_addr }}  -raft-addr {{ rqlite_raft_addr }} -bootstrap-expect {{ rqlite_peers|length }} -join {{ rqlite_peers|join(',') }} {{ rqlite_data_dir }}
+ExecReload=/bin/kill -HUP $MAINPID
+KillSignal=SIGTERM
+Restart=always
